@@ -2,11 +2,8 @@ import "./globals.css";
 import { Inter } from "next/font/google";
 import { getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]/route";
-import SessionProvider from "./SessionProvider";
-import LoginPage from "../components/Login";
-import AppContextProvider from "./Context/AppContextProvider";
-import Sidebar from "../components/Sidebar.jsx";
-import Navbar from "../components/Navbar.jsx";
+import SessionProvider from "../Context/SessionProvider";
+import AppContextProvider from "../Context/AppContextProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,21 +18,7 @@ export default async function RootLayout({ children }) {
     <html lang="en">
       <body className={`${inter.className} bg-gptGray text-gptWhite `}>
         <SessionProvider session={session}>
-          <AppContextProvider>
-            {!session ? (
-              <LoginPage />
-            ) : (
-              <>
-                <Navbar />
-                <div className="md:flex ">
-                  <Sidebar />
-                  <main className="min-h-screen container mx-auto md:min-h-initial p-5 ">
-                    {children}
-                  </main>
-                </div>
-              </>
-            )}
-          </AppContextProvider>
+          <AppContextProvider>{children}</AppContextProvider>
         </SessionProvider>
       </body>
     </html>

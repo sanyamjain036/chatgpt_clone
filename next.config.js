@@ -8,6 +8,18 @@ const nextConfig = {
             port: '',
             pathname: '/a/**',
           },
+          {
+            protocol: 'https',
+            hostname: 'cfj.org',
+            port: '',
+            pathname: '/**',
+          },
+          {
+            protocol: 'https',
+            hostname: 'brandlogovector.com',
+            port: '',
+            pathname: '/**',
+          },
         ],
       },
 }

@@ -1,6 +1,6 @@
 
 'use client';
-import { AppContext } from "../app/Context/AppContextProvider";
+import { AppContext } from "../Context/AppContextProvider";
 import React, { useContext } from "react";
 
 function Navbar() {

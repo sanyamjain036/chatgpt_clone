@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import React, { useContext } from "react";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
@@ -15,14 +15,21 @@ import {
 import { db } from "../firebase";
 import { useCollection } from "react-firebase-hooks/firestore";
 import Link from "next/link";
-import { AppContext } from "../app/Context/AppContextProvider";
+import { AppContext } from "../Context/AppContextProvider";
 
-function Item({ content: messages, id }) {
+function Item({ id }) {
   const pathname = usePathname();
   let active = false;
   if (pathname.includes(id)) active = true;
   const router = useRouter();
   const { data: session } = useSession();
+
+  const [messages] = useCollection(
+    query(
+      collection(db, "users", session?.user?.email, "chats", id, "messages"),
+      orderBy("createdAt", "desc")
+    )
+  );
 
   async function deleteChat() {
     await deleteDoc(doc(db, "users", session?.user?.email, "chats", id));
@@ -53,7 +60,7 @@ function Item({ content: messages, id }) {
           </svg>
         </span>
         <span className="truncate grow">
-          {messages?.slice(-1) || "New Chat"}
+          {messages?.docs[0]?.data().text || "New Chat"}
         </span>
         <span className="relative group " onClick={deleteChat}>
           <span className="-bottom-10 -left-9 absolute bg-slate-600 hidden z-20 text-gptWhite group-hover:block text-xs p-2  rounded">
@@ -80,7 +87,7 @@ function Item({ content: messages, id }) {
 }
 
 function Sidebar() {
-  const { isSideOpen, setIsSideOpen }=useContext(AppContext);
+  const { isSideOpen, setIsSideOpen } = useContext(AppContext);
   const router = useRouter();
   const { data: session } = useSession();
 
@@ -141,13 +148,7 @@ function Sidebar() {
           </div>
           <div className="overflow-y-scroll h-[80%] mb-7">
             {chats?.docs.map((item, index) => {
-              return (
-                <Item
-                  key={item.id}
-                  id={item.id}
-                  content={item.data().messages}
-                />
-              );
+              return <Item key={item.id} id={item.id} />;
             })}
           </div>
           {/* avatar */}
