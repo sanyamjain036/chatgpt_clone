@@ -1,12 +1,14 @@
-"use client";
 import React from "react";
 import Navbar from "../../components/Navbar";
 import Sidebar from "../../components/Sidebar";
-import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
-const layout = ({ children }) => {
-  const { data: session } = useSession();
-  if (!session) redirect("/login");
+import { getServerSession } from "next-auth";
+import { authOptions } from "../api/auth/[...nextauth]/options";
+
+const layout = async({ children }) => {
+  const session = await getServerSession(authOptions);
+  console.log(session);
+  if (!session) redirect("/signin");
   return (
     <>
       <Navbar />

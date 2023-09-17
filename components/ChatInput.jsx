@@ -3,45 +3,41 @@ import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { db } from "../firebase";
 import { useSession } from "next-auth/react";
+import WaitingToast from "./Toast/Waiting";
+import SuccessToast from "./Toast/Success";
 
 const ChatInput = ({ chatId }) => {
   const [prompt, setPrompt] = useState("");
+  const [loadingToast, setLoadingToast] = useState(false);
+  const [successToast, setSuccessToast] = useState(false);
+
   let active = prompt?.length > 2;
   const model = "gpt-3.5-turbo";
   const { data: session } = useSession();
 
-  useEffect(() => {
-    const keyDownHandler = event => {
-
-      if (event.key === 'Enter') {
-        event.preventDefault();
-        sendMessage();
-      }
-    };
-
-    document.addEventListener('keydown', keyDownHandler);
-
-    return () => {
-      document.removeEventListener('keydown', keyDownHandler);
-    };
-  }, []);
+  function handleKeyDown(e) {
+    if (e.key == "Enter") {
+      sendMessage();
+    }
+  }
 
   const sendMessage = async () => {
-    if (!prompt || !active) return;
-    const trimmed = prompt.trim();
+    if (!prompt || prompt.length < 3) return;
+
+    const trimmed = prompt;
+    trimmed.trim();
     const message = {
       text: trimmed,
       createdAt: serverTimestamp(),
       user: {
         _id: session?.user?.email,
-        name: session?.user?.name,
-        avatar:
-          session?.user?.image ||
-          "https://ui-avatars.com/api/?name=" + session?.user?.name,
+        name: session?.user?.name || "User",
+        avatar: session?.user?.image || "https://ui-avatars.com/api/?name=User",
       },
     };
 
     try {
+      setLoadingToast(true);
       await addDoc(
         collection(
           db,
@@ -68,8 +64,14 @@ const ChatInput = ({ chatId }) => {
         },
         body: JSON.stringify(data),
       });
+      setSuccessToast(true);
+      setTimeout(() => {
+        setSuccessToast(false);
+      }, 1000);
     } catch (err) {
-        console.log(err);
+      console.log(err);
+    } finally {
+      setLoadingToast(false);
     }
   };
 
@@ -81,8 +83,9 @@ const ChatInput = ({ chatId }) => {
         placeholder="Send a message"
         value={prompt}
         onChange={(e) => setPrompt(e.target.value)}
+        onKeyDown={handleKeyDown}
       />
-      <span
+      <button
         onClick={sendMessage}
         className={`${active ? "bg-green-600" : ""} p-1 rounded-md`}
       >
@@ -94,7 +97,9 @@ const ChatInput = ({ chatId }) => {
         >
           <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" />
         </svg>
-      </span>
+      </button>
+      {loadingToast && <WaitingToast />}
+      {successToast && <SuccessToast />}
     </div>
   );
 };

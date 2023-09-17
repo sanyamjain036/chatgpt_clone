@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import { collection, orderBy, query } from "firebase/firestore";
 import { db } from "../firebase";
 
+
 const ChatItem = ({ message }) => {
   const isgpt = message.user.name === "ChatGPT";
 
@@ -46,6 +47,7 @@ const Chat = ({ chatId }) => {
       {messages?.docs.map((message) => (
         <ChatItem key={message.id} message={message.data()} />
       ))}
+     
     </div>
   );
 };

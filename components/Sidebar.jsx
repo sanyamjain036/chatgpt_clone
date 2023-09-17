@@ -103,7 +103,6 @@ function Sidebar() {
     const doc = await addDoc(
       collection(db, "users", session?.user?.email, "chats"),
       {
-        messages: [],
         userId: session?.user.email,
         createdAt: serverTimestamp(),
       }
@@ -177,7 +176,7 @@ function Sidebar() {
                 />
               </svg>
             )}
-            <span className="grow">{session?.user?.name}</span>
+            <span className="grow">{session?.user?.name || "User"}</span>
 
             <span
               className="cursor-pointer relative group "
